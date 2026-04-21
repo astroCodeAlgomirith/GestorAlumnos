@@ -51,13 +51,13 @@ public class Server {
 
 	public void startServer() {
 		try {
-			this.server = HttpServer.create(new InetSocketAddress(port), 0);
+			this.server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 		} catch (IOException e) {
 			// TODO: handle exception
 			e.printStackTrace();
 			return;
 		}
-		// HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
+		HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
 		// HttpContext taskContext = server.createContext(TASK_ENDPOINT);
 		HttpContext ipnContext = server.createContext("/ipn");
 		HttpContext searchContext = server.createContext(SEARCH_TOKEN_ENDPOINT);
@@ -67,7 +67,7 @@ public class Server {
 		HttpContext alumnosContext = server.createContext(ALUMNOS_ENDPOINT);
 		alumnosContext.setHandler(this::handleAlumnosRequest);
 
-		// statusContext.setHandler(this::handleStatusCheckRequest);
+		statusContext.setHandler(this::handleStatusCheckRequest);
 		// taskContext.setHandler(exchange -> {
 		// try {
 		// handleTaskRequest(exchange);
@@ -340,15 +340,15 @@ public class Server {
 
 		return token.toString();
 	}
-	// private void handleStatusCheckRequest(HttpExchange exchange) throws
-	// IOException {
-	// if(!exchange.getRequestMethod().equalsIgnoreCase("get")) {
-	// exchange.close();
-	// return;
-	// }
-	// String responseMessage = "El servidor esta vivo en el puerto:"+ port + "\n";
-	// sendResponse(responseMessage.getBytes(), exchange);
-	// }
+	private void handleStatusCheckRequest(HttpExchange exchange) throws
+		IOException {
+			if(!exchange.getRequestMethod().equalsIgnoreCase("get")) {
+					exchange.close();
+					return;
+			}
+			String responseMessage = "El servidor esta vivo en el puerto:"+ port + "\n";
+			sendResponse(exchange, 200, responseMessage);
+	}
 
 	private void handleIpnRequest(HttpExchange exchange) throws IOException {
 
